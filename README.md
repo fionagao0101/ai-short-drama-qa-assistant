@@ -2,6 +2,8 @@
 
 A **human-in-the-loop multimodal QA assistant** for overseas short-drama localization, built around a Brazil / **pt-BR** workflow.
 
+🌐 **Live Portfolio Demo:** https://ai-short-drama-assistant.streamlit.app/
+
 It converts long-form manual review SOPs into a structured pipeline that combines audio transcription, subtitle timing/semantic alignment, repetition detection, visual reasoning, character identity checks, and an Evidence Gate that separates **Main Issues** from **Review Hints**.
 
 > **Status:** Step 5I.2 Final — frozen MVP pilot baseline.
