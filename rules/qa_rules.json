@@ -1,0 +1,427 @@
+{
+  "project": {
+    "name": "AI Short Drama QA Assistant",
+    "version": "0.1.0",
+    "target_market": "Brazil",
+    "target_locale": "pt-BR",
+    "source_type": "AI-remade/localized short drama",
+    "principle": "precision_first",
+    "human_in_the_loop": true
+  },
+  "global_policy": {
+    "allowed_dimensions": [
+      "subtitle_chinese",
+      "dubbing_chinese",
+      "visual_chinese",
+      "cultural_mismatch",
+      "bgm_chinese",
+      "subtitle_style",
+      "proper_noun_inconsistency",
+      "proper_noun_localization",
+      "dialogue_logic",
+      "visual_quality",
+      "visual_logic",
+      "voice_timbre"
+    ],
+    "main_issue_requires": [
+      "clear_evidence",
+      "locatable_time_range",
+      "impact_on_comprehension_or_localization"
+    ],
+    "uncertain_issue_destination": "review_hint",
+    "time_format": "mm:ss-mm:ss",
+    "forbid_single_timestamp": true,
+    "final_review_required_for_passed_episode": true
+  },
+  "severity": {
+    "P0": {
+      "label": "blocking",
+      "requirements": [
+        "hard_evidence",
+        "clearly_visible_or_stably_replayable",
+        "severely_impacts_comprehension_or_localization_quality"
+      ],
+      "examples": [
+        "large_clear_chinese_or_full_line_garbled_text",
+        "clear_repeated_chinese_dubbing_or_chinese_bgm",
+        "whole_segment_in_wrong_language",
+        "critical_plot_dialogue_or_proper_noun_error",
+        "prominent_key_visual_text_error_breaking_localization"
+      ]
+    },
+    "P1": {
+      "label": "should_fix",
+      "requirements": [
+        "clear_and_locatable",
+        "materially_impacts_experience_or_understanding",
+        "not_fully_blocking"
+      ]
+    },
+    "P2": {
+      "label": "optional_fix",
+      "requirements": [
+        "clear_evidence",
+        "low_impact",
+        "still_worth_modifying"
+      ],
+      "default_behavior": "prefer_review_hint_or_ignore_if_too_minor"
+    }
+  },
+  "evidence_gate": {
+    "subtitle_dubbing_mismatch": {
+      "all_required": [
+        "spoken_content_stably_replayable",
+        "burned_subtitle_visually_confirmed_frame_by_frame",
+        "same_dialogue_chain",
+        "no_reasonable_matching_subtitle_within_plus_minus_2_seconds",
+        "affects_understanding_relationship_plot_proper_noun_or_localization"
+      ],
+      "if_failed": "review_hint",
+      "timing_tolerance": {
+        "asr_boundary_uncertainty_seconds": 0.45,
+        "normal_start_offset_seconds": 0.8,
+        "main_issue_min_delay_seconds": 1.2,
+        "main_issue_requires": [
+          "persistent_multi_frame_evidence",
+          "or_material_missing_semantic_clause",
+          "or_continuous_wrong_subtitle_residue"
+        ]
+      },
+      "semantic_gap_exception": {
+        "enabled": true,
+        "description": "If an independently meaningful spoken clause is never covered by any later subtitle frame, treat it as partial missing subtitle even when total onset delay is below the normal timing threshold.",
+        "normal_delay_filter_requires": [
+          "later_subtitle_recovers_full_semantic_content",
+          "no_meaningful_clause_is_permanently_missing"
+        ]
+      }
+    },
+    "visual_text": {
+      "all_required": [
+        "clearly_readable",
+        "prominent_position",
+        "visible_at_least_2_seconds",
+        "affects_localization_or_plot_understanding"
+      ],
+      "extra_requirement_for_chinese_or_pinyin": "must_quote_at_least_2_chinese_characters_or_full_pinyin_string",
+      "if_failed": "review_hint"
+    },
+    "character_identity": {
+      "all_required": [
+        "same_character_supported_by_multiple_cues",
+        "same_scene_or_same_dialogue_chain",
+        "multiple_shot_cross_check",
+        "identity_change_materially_affects_who_is_who"
+      ],
+      "if_failed": "review_hint"
+    },
+    "continuity": {
+      "all_required": [
+        "same_location_and_time",
+        "same_dialogue_chain",
+        "no_clear_transition_flashback_or_location_change",
+        "same_character_or_prop_confirmed"
+      ],
+      "if_failed": "review_hint"
+    }
+  },
+  "dimensions": {
+    "subtitle_chinese": {
+      "name_zh": "字幕含中文/拼音",
+      "detector": "subtitle_text",
+      "default_severity": "P0",
+      "rules": [
+        "clear_chinese_or_pinyin_in_burned_subtitle",
+        "must_be_visually_confirmed"
+      ]
+    },
+    "dubbing_chinese": {
+      "name_zh": "配音含中文",
+      "detector": "audio",
+      "default_severity": "P0",
+      "rules": [
+        "must_be_stably_replayable",
+        "single_uncertain_occurrence_is_not_main_issue"
+      ]
+    },
+    "visual_chinese": {
+      "name_zh": "画面含中文/拼音",
+      "detector": "visual_text",
+      "default_severity": "P1",
+      "rules": [
+        "apply_visual_text_evidence_gate",
+        "must_quote_detected_text"
+      ]
+    },
+    "cultural_mismatch": {
+      "name_zh": "非目标市场文化元素",
+      "detector": "visual_semantics",
+      "default_severity": "P1",
+      "allowed_examples": [
+        "prominent_chinese_food_props",
+        "qipao_or_hanfu_in_modern_urban_context",
+        "clearly_identifiable_chinese_brand_logo",
+        "other_high_impact_chinese_lifestyle_props"
+      ],
+      "ignore_examples": [
+        "bowing",
+        "tea_set",
+        "screen_divider",
+        "chinese_architecture_exterior",
+        "lucky_numbers"
+      ]
+    },
+    "bgm_chinese": {
+      "name_zh": "BGM含中文歌词",
+      "detector": "audio_music",
+      "default_severity": "P0",
+      "rules": [
+        "lyrics_must_be_stably_replayable",
+        "single_uncertain_occurrence_is_review_hint"
+      ]
+    },
+    "subtitle_style": {
+      "name_zh": "字幕样式位置不一致",
+      "detector": "visual_layout",
+      "default_severity": "P2",
+      "rules": [
+        "only_report_clear_and_material_inconsistency",
+        "minor_position_shift_is_filtered",
+        "minor_case_spacing_punctuation_are_filtered"
+      ]
+    },
+    "proper_noun_inconsistency": {
+      "name_zh": "专有名词拼写不一致",
+      "detector": "text_audio_entity",
+      "default_severity": "P1",
+      "subtypes": [
+        "name_spelling_inconsistency",
+        "title_gender_identity_mismatch",
+        "name_pronunciation_error",
+        "entity_reference_inconsistency"
+      ],
+      "rules": [
+        "extract_core_names_titles_places_and_organizations",
+        "compare_with_previous_mentions_and_known_context",
+        "minor_accent_variation_is_not_issue"
+      ]
+    },
+    "proper_noun_localization": {
+      "name_zh": "专有名词未本地化",
+      "detector": "text_entity",
+      "default_severity": "P1",
+      "rules": [
+        "flag_unlocalized_core_proper_noun_when_it_harms_target_market_understanding"
+      ]
+    },
+    "dialogue_logic": {
+      "name_zh": "台词逻辑异常",
+      "detector": "multimodal_dialogue",
+      "default_severity": "P1",
+      "subtypes": [
+        "subtitle_dubbing_mismatch",
+        "missing_subtitle_for_complete_utterance",
+        "subtitle_timing_misalignment",
+        "subtitle_order_swap",
+        "dialogue_role_misattribution",
+        "dialogue_repetition",
+        "audio_overlap"
+      ],
+      "rules": [
+        "must_use_three_layer_localization",
+        "check_plus_minus_2_seconds_for_timing",
+        "continuous_two_line_mismatch_is_mandatory_P1",
+        "short_fillers_without_separate_subtitle_are_filtered_if_meaning_preserved",
+        "unintelligible_audio_goes_to_review_hint",
+        "asr_segment_boundaries_have_timing_uncertainty_and_must_not_be_treated_as_ground_truth",
+        "minor_subtitle_timing_offset_should_be_filtered_when_semantics_match",
+        "timing_main_issue_requires_persistent_multi_frame_evidence_or_material_missing_clause"
+      ]
+    },
+    "visual_quality": {
+      "name_zh": "画质异常",
+      "detector": "visual_quality",
+      "default_severity": "P1",
+      "rules": [
+        "only_report_if_severe_enough_to_harm_understanding_or_viewing"
+      ]
+    },
+    "visual_logic": {
+      "name_zh": "画面逻辑异常",
+      "detector": "multimodal_visual",
+      "default_severity": "P1",
+      "subtypes": [
+        "character_identity_mismatch",
+        "face_swap_or_face_mix",
+        "wardrobe_continuity",
+        "prop_continuity",
+        "pose_action_continuity",
+        "scene_background_continuity",
+        "action_dialogue_contradiction",
+        "lip_sync_or_speaker_mismatch"
+      ],
+      "rules": [
+        "build_temporary_character_map_if_no_asset_doc",
+        "cross_check_multiple_shots",
+        "do_not_auto_filter_major_face_or_clothing_change_as_ai_artifact",
+        "minor_one_second_jump_or_angle_change_is_filtered"
+      ]
+    },
+    "voice_timbre": {
+      "name_zh": "音色巨大异常",
+      "detector": "audio_scene_logic",
+      "default_severity": "P1",
+      "subtypes": [
+        "unexpected_phone_filter",
+        "large_voice_identity_shift",
+        "abnormal_echo_or_filter",
+        "core_name_pronunciation_confusion"
+      ],
+      "rules": [
+        "must_be_judged_with_scene_context",
+        "phone_filter_during_actual_phone_call_is_normal",
+        "minor_tone_or_accent_change_is_filtered"
+      ]
+    }
+  },
+  "special_workflows": {
+    "three_layer_dialogue_localization": [
+      "capture_burned_subtitle",
+      "transcribe_spoken_audio",
+      "classify_error_layer_as_subtitle_audio_both_timing_or_speaker_assignment"
+    ],
+    "subtitle_timing_check": [
+      "inspect_2_seconds_before",
+      "inspect_2_seconds_after",
+      "check_for_early_flash",
+      "check_for_previous_subtitle_residue",
+      "check_for_next_subtitle_early_overlay",
+      "check_for_global_lead_or_lag"
+    ],
+    "character_map": {
+      "when_asset_doc_available": "use_asset_doc",
+      "when_asset_doc_missing": "build_temporary_character_relationship_map",
+      "fields": [
+        "role",
+        "identity",
+        "name_or_title",
+        "hair",
+        "skin_tone",
+        "clothing",
+        "stable_face_features",
+        "common_cooccurrence",
+        "relationship_cues"
+      ]
+    },
+    "episode_scan": [
+      "opening_key_dialogue",
+      "middle_conflict_scene",
+      "ending_key_dialogue",
+      "scene_transition_points",
+      "last_dialogue_round",
+      "last_subtitle_dubbing_alignment",
+      "ending_20_to_30_second_fast_scan"
+    ]
+  },
+  "filters": [
+    "minor_case_difference",
+    "minor_spacing_punctuation_or_layout",
+    "ptbr_accent_rendering_split_bug",
+    "minor_cultural_elements",
+    "single_uncertain_chinese_audio",
+    "dialogue_logic_guess_from_single_line",
+    "blurred_small_or_short_visual_text",
+    "subjective_aesthetic_comment",
+    "minor_visual_quality_fluctuation",
+    "minor_voice_change",
+    "normal_phone_filter_in_phone_scene",
+    "minor_one_second_ai_jump",
+    "normal_internal_monologue_without_lip_sync",
+    "minor_filler_repetition",
+    "short_filler_without_own_subtitle_if_meaning_preserved",
+    "unintelligible_suspected_speech_as_main_issue",
+    "minor_subtitle_timing_offset_within_normal_tolerance",
+    "single_sample_frame_without_subtitle_when_following_frames_align",
+    "asr_boundary_offset_without_material_missing_semantic_unit"
+  ],
+  "routing": {
+    "main_issue": {
+      "requires_evidence_gate": true,
+      "allowed_severity": [
+        "P0",
+        "P1",
+        "P2"
+      ]
+    },
+    "review_hint": {
+      "used_for": [
+        "insufficient_evidence",
+        "uncertain_visual_text",
+        "uncertain_dialogue_assignment",
+        "uncertain_character_identity",
+        "unintelligible_suspected_missing_subtitle",
+        "minor_but_reviewable_issue"
+      ]
+    },
+    "pass": {
+      "requires_episode_scan_complete": true,
+      "requires_ending_fast_scan": true
+    }
+  },
+  "output_schema": {
+    "episode": "string",
+    "source_file": "string",
+    "issues": [
+      {
+        "dimension": "enum",
+        "subtype": "string|null",
+        "severity": "P0|P1|P2",
+        "start_time": "mm:ss",
+        "end_time": "mm:ss",
+        "carrier": "subtitle|dubbing|visual_text|visual|audio|character|multimodal",
+        "subtitle_text": "string|null",
+        "spoken_text": "string|null",
+        "visual_evidence": "string|null",
+        "context_evidence": "string|null",
+        "evidence_complete": "boolean",
+        "decision": "MAIN_ISSUE|REVIEW_HINT",
+        "reason": "string",
+        "suggested_fix": "string|null"
+      }
+    ],
+    "episode_status": "PASS|REVIEW|REJECT"
+  },
+  "character_dialogue_semantics": {
+    "third_person_exclusion": "When a speaker addresses the visible interlocutor while mentioning character X in third person, the interlocutor is normally not X. If the visible face matches X reference, trigger deep review.",
+    "direct_name_address": "Direct name/title address can identify the expected interlocutor.",
+    "face_mix_priority": "If dialogue semantics establishes that the scene role should be A but the visible face matches B, prefer face_swap_or_face_mix over dialogue_role_misattribution.",
+    "no_name_required": true,
+    "dialogue_addressee_impossibility": "A character face conflict may be inferred without any proper name if the dialogue chain establishes that the visible interlocutor cannot logically be that reference character.",
+    "scene_role_inference": "Use 3–5 neighboring dialogue turns to infer the expected scene role, such as male lead, male second lead, doctor, groom's friend, subordinate, or family member.",
+    "perspective_and_relationship_evidence": [
+      "pronoun perspective (I/you/he/she)",
+      "husband/wife/brother/sister/boss/doctor/groom/friend relationship terms",
+      "reported speech and relay instructions",
+      "questions about an absent third person",
+      "dialogue chains whose logic becomes impossible if the visible reference identity is assumed"
+    ],
+    "face_mix_evidence_gate": "Main Issue requires both (1) stable multi-frame reference-face conflict and (2) dialogue/relationship/scene-role semantics showing that the current scene position should be another role or explicitly excludes the visible reference role."
+  },
+  "regression_lock": {
+    "semantic_subtitle_dubbing_mismatch": {
+      "timing_tolerance_must_not_filter": true,
+      "main_issue_when": [
+        "subtitle_and_asr_have_different_core_meaning",
+        "or_continuous_frames_show_previous_or_next_sentence_against_current_asr"
+      ]
+    },
+    "plot_action_repeat": {
+      "promote_from_hint_when": {
+        "semantic_similarity_min": 0.88,
+        "visual_hint_confidence_min": 0.82,
+        "requires_explicit_repeat_description": true,
+        "must_not_have_flashback_or_recap_explanation": true
+      }
+    }
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Short Drama QA Assistant - Input Schema",
+  "type": "object",
+  "required": [
+    "episode_id",
+    "source_file_name",
+    "target_market",
+    "target_locale"
+  ],
+  "properties": {
+    "episode_id": {
+      "type": "string",
+      "pattern": "^EP\\d{3,}$",
+      "description": "Episode identifier, e.g. EP005"
+    },
+    "source_file_name": {
+      "type": "string",
+      "description": "Original uploaded video filename"
+    },
+    "target_market": {
+      "type": "string",
+      "default": "Brazil"
+    },
+    "target_locale": {
+      "type": "string",
+      "default": "pt-BR"
+    },
+    "video": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "local_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "duration_seconds": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "fps": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "width": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "height": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "transcript": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Optional pre-generated ASR transcript for debug/manual mode",
+      "properties": {
+        "language": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "start",
+              "end",
+              "text"
+            ],
+            "properties": {
+              "start": {
+                "type": "number",
+                "minimum": 0
+              },
+              "end": {
+                "type": "number",
+                "minimum": 0
+              },
+              "speaker": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "known_entities": {
+      "type": "array",
+      "description": "Known character names, titles, places, organizations and expected localizations",
+      "items": {
+        "type": "object",
+        "required": [
+          "entity_type",
+          "canonical_form"
+        ],
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "enum": [
+              "character_name",
+              "title",
+              "place",
+              "organization",
+              "other"
+            ]
+          },
+          "canonical_form": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "character_assets": {
+      "type": "array",
+      "description": "Optional character references or manually entered stable identity features",
+      "items": {
+        "type": "object",
+        "required": [
+          "character_id"
+        ],
+        "properties": {
+          "character_id": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reference_image_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stable_features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "review_scope": {
+      "type": "object",
+      "properties": {
+        "full_episode": {
+          "type": "boolean",
+          "default": true
+        },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "subtitle_chinese",
+              "dubbing_chinese",
+              "visual_chinese",
+              "cultural_mismatch",
+              "bgm_chinese",
+              "subtitle_style",
+              "proper_noun_inconsistency",
+              "proper_noun_localization",
+              "dialogue_logic",
+              "visual_quality",
+              "visual_logic",
+              "voice_timbre"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "debug_options": {
+      "type": "object",
+      "properties": {
+        "use_manual_transcript_if_present": {
+          "type": "boolean",
+          "default": true
+        },
+        "save_extracted_frames": {
+          "type": "boolean",
+          "default": false
+        },
+        "save_intermediate_artifacts": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

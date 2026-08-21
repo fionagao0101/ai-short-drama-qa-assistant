@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Short Drama QA Assistant - Output Schema",
+  "type": "object",
+  "required": [
+    "episode_id",
+    "source_file_name",
+    "target_locale",
+    "episode_status",
+    "issues",
+    "review_hints",
+    "summary"
+  ],
+  "properties": {
+    "episode_id": {
+      "type": "string"
+    },
+    "source_file_name": {
+      "type": "string"
+    },
+    "target_locale": {
+      "type": "string"
+    },
+    "episode_status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "REVIEW",
+        "REJECT"
+      ]
+    },
+    "scan_completed": {
+      "type": "boolean",
+      "description": "Whether required opening/middle/ending checks and ending fast scan were completed"
+    },
+    "issues": {
+      "type": "array",
+      "description": "Formal main-table issues that passed evidence gates",
+      "items": {
+        "type": "object",
+        "required": [
+          "issue_id",
+          "dimension",
+          "severity",
+          "start_time",
+          "end_time",
+          "carrier",
+          "evidence_complete",
+          "reason"
+        ],
+        "properties": {
+          "issue_id": {
+            "type": "string"
+          },
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "subtitle_chinese",
+              "dubbing_chinese",
+              "visual_chinese",
+              "cultural_mismatch",
+              "bgm_chinese",
+              "subtitle_style",
+              "proper_noun_inconsistency",
+              "proper_noun_localization",
+              "dialogue_logic",
+              "visual_quality",
+              "visual_logic",
+              "voice_timbre"
+            ]
+          },
+          "subtype": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "P0",
+              "P1",
+              "P2"
+            ]
+          },
+          "start_time": {
+            "type": "string",
+            "pattern": "^\\d{2,}:\\d{2}$"
+          },
+          "end_time": {
+            "type": "string",
+            "pattern": "^\\d{2,}:\\d{2}$"
+          },
+          "carrier": {
+            "type": "string",
+            "enum": [
+              "subtitle",
+              "dubbing",
+              "visual_text",
+              "visual",
+              "audio",
+              "character",
+              "multimodal"
+            ]
+          },
+          "subtitle_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "spoken_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "visual_evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "context_evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence_complete": {
+            "type": "boolean",
+            "const": true
+          },
+          "reason": {
+            "type": "string"
+          },
+          "suggested_fix": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "review_hints": {
+      "type": "array",
+      "description": "Potential issues withheld from main table because evidence is insufficient",
+      "items": {
+        "type": "object",
+        "required": [
+          "hint_id",
+          "start_time",
+          "end_time",
+          "carrier",
+          "suspected_issue",
+          "why_not_main_issue"
+        ],
+        "properties": {
+          "hint_id": {
+            "type": "string"
+          },
+          "dimension": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subtype": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "start_time": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "string"
+          },
+          "carrier": {
+            "type": "string"
+          },
+          "suspected_issue": {
+            "type": "string"
+          },
+          "missing_evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "why_not_main_issue": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "p0_count",
+        "p1_count",
+        "p2_count",
+        "review_hint_count",
+        "main_issue_count"
+      ],
+      "properties": {
+        "p0_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "p1_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "p2_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "review_hint_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "main_issue_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dimension_counts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "high_priority_repair_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "status_logic": {
+      "type": "object",
+      "properties": {
+        "rule_applied": {
+          "type": "string"
+        },
+        "explanation": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

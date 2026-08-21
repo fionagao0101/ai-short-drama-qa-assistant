@@ -1,0 +1,47 @@
+{
+  "episode_status": "REVIEW",
+  "summary": {
+    "p0_count": 0,
+    "p1_count": 2,
+    "p2_count": 0,
+    "main_issue_count": 2,
+    "review_hint_count": 1
+  },
+  "issues": [
+    {
+      "severity": "P1",
+      "dimension": "dialogue_logic",
+      "subtype": "subtitle_dubbing_semantic_mismatch",
+      "start_time": "01:16",
+      "end_time": "01:17",
+      "carrier": "multimodal",
+      "confidence": 0.96,
+      "reason": "连续字幕与当前配音核心语义不一致，属于字幕–配音语义错配，而非轻微 Timing 偏差。",
+      "subtitle_text": "Deixa eu ver",
+      "spoken_text": "[different spoken meaning]",
+      "suggested_fix": "复核原始配音并将字幕修正为与当前配音一致的 pt-BR 文本。"
+    },
+    {
+      "severity": "P1",
+      "dimension": "visual_logic",
+      "subtype": "face_swap_or_face_mix",
+      "start_time": "01:26",
+      "end_time": "01:28",
+      "carrier": "multimodal",
+      "confidence": 0.97,
+      "reason": "前后台词表明当前剧情角色应为角色 B，但多帧人脸稳定匹配角色 A reference，角色身份与剧情关系冲突。",
+      "subtitle_text": null,
+      "spoken_text": "[role-sensitive dialogue]",
+      "suggested_fix": "将该时间窗人物面部替换为正确角色 reference，并复核相邻镜头连续性。"
+    }
+  ],
+  "review_hints": [
+    {
+      "dimension": "proper_noun_inconsistency",
+      "start_time": "00:26",
+      "end_time": "00:30",
+      "suspected_issue": "ASR 人名发音/拼写与已知角色名不一致，建议回听原音并对照烧录字幕。",
+      "why_not_main_issue": "仅凭自动 ASR 无法排除识别误差。"
+    }
+  ]
+}
